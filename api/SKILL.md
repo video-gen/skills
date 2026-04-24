@@ -63,7 +63,7 @@ execution = poll_executed_tool(client, response.tool_execution_id)
 | `videoToVideoClip` | `POST /v1/tools/video-to-video-clip` | Restyle video with prompt |
 | `textToSpeech` | `POST /v1/tools/text-to-speech` | Text to speech voiceover |
 | `promptToSoundEffect` | `POST /v1/tools/prompt-to-sound-effect` | Generate sound effects |
-| `generateAvatar` | `POST /v1/tools/generate-avatar` | Avatar presenter video |
+| `audioToAvatarClip` | `POST /v1/tools/audio-to-avatar-clip` | Avatar presenter video |
 | `vectorizeImage` | `POST /v1/tools/vectorize-image` | Raster to SVG |
 | `removeImageBackground` | `POST /v1/tools/remove-image-background` | Remove image background |
 | `removeVideoBackground` | `POST /v1/tools/remove-video-background` | Remove video background |

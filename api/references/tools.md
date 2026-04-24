@@ -191,11 +191,11 @@ const result = await pollExecutedTool(client, toolExecutionId);
 
 ---
 
-## generateAvatar
+## audioToAvatarClip
 
 Generate a talking-head avatar video by pairing a presenter with an audio file.
 
-**Endpoint:** `POST /v1/tools/generate-avatar`
+**Endpoint:** `POST /v1/tools/audio-to-avatar-clip`
 
 | Param | Type | Required | Description |
 |---|---|---|---|
@@ -217,7 +217,7 @@ const { avatarPresenters } = await client.resources.listAvatarPresenters();
 const presenter = avatarPresenters[0];
 
 // Step 3: Generate avatar video
-const { toolExecutionId: avatarExecId } = await client.tools.generateAvatar({
+const { toolExecutionId: avatarExecId } = await client.tools.audioToAvatarClip({
   avatarPresenterId: presenter.avatarPresenterId,
   audioStorageFileId: audioFileId,
 });
