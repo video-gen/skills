@@ -26,8 +26,8 @@ import { VideoGenClient, pollExecutedTool } from "@videogen/sdk";
 
 const client = new VideoGenClient({ token: process.env.VIDEOGEN_API_KEY });
 
-const { toolExecutionId } = await client.tools.promptToImage({
-  prompt: "A mountain at sunrise, cinematic lighting",
+const { toolExecutionId } = await client.tools.promptToVideoClip({
+  prompt: "Aerial drone shot of a coastal city at golden hour, waves crashing against the shoreline",
 });
 
 const execution = await pollExecutedTool(client, toolExecutionId);
@@ -40,7 +40,7 @@ from videogen import VideoGenApi, poll_executed_tool
 
 client = VideoGenApi(token=os.environ["VIDEOGEN_API_KEY"])
 
-response = client.tools.prompt_to_image(prompt="A mountain at sunrise, cinematic lighting")
+response = client.tools.prompt_to_video_clip(prompt="Aerial drone shot of a coastal city at golden hour, waves crashing against the shoreline")
 execution = poll_executed_tool(client, response.tool_execution_id)
 # execution.results[0].storage_file_id → "vg_file_..."
 ```
