@@ -88,3 +88,15 @@ Full parameter schemas and examples: [tools.md](references/tools.md)
 - **[files-and-resources.md](references/files-and-resources.md)** — File upload, download, hydration, avatar presenters, TTS voices
 - **[webhooks.md](references/webhooks.md)** — Webhook CRUD and signature verification
 - **[async-patterns.md](references/async-patterns.md)** — Polling, webhook delivery, cancellation
+
+## Need more info?
+
+If the reference files above don't cover what you need, consult the published API documentation:
+
+- **Full docs (human-readable)**: <https://videogen.docs.buildwithfern.com>
+- **LLM-optimized overview**: <https://videogen.docs.buildwithfern.com/llms.txt>
+- **Complete docs with SDK examples**: <https://videogen.docs.buildwithfern.com/llms-full.txt>
+- **OpenAPI spec (JSON)**: <https://videogen.docs.buildwithfern.com/openapi.json>
+- **MCP server** (for AI clients): <https://videogen.docs.buildwithfern.com/_mcp/server>
+
+Use `llms.txt` for a quick scan of all endpoints and guide pages. Use `llms-full.txt` when you need complete page content including SDK code examples. Fetch the OpenAPI spec for exact request/response schemas.
