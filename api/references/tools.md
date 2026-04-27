@@ -210,7 +210,7 @@ const { toolExecutionId: ttsExecId } = await client.tools.textToSpeech({
   ttsText: "Hello, welcome to our product demo.",
 });
 const ttsResult = await pollExecutedTool(client, ttsExecId);
-const audioFileId = ttsResult.results[0].storageFileId;
+const audioFileId = ttsResult.results[0].fileId;
 
 // Step 2: List presenters and pick one
 const { avatarPresenters } = await client.resources.listAvatarPresenters();
@@ -351,7 +351,7 @@ Each `ToolSuccessResult`:
 
 | Field | Type | Description |
 |---|---|---|
-| `storageFileId` | string | File ID for the generated asset |
+| `fileId` | string | File ID for the generated asset |
 | `type` | `IMAGE` \| `VIDEO` \| `AUDIO` | File type |
 | `file` | `StorageFile \| null` | Hydrated file metadata (populated from webhooks or after hydration) |
 

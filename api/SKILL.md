@@ -31,7 +31,7 @@ const { toolExecutionId } = await client.tools.promptToVideoClip({
 });
 
 const execution = await pollExecutedTool(client, toolExecutionId);
-// execution.results[0].storageFileId → "vg_file_..."
+// execution.results[0].fileId → "vg_file_..."
 ```
 
 ```python
@@ -78,8 +78,8 @@ Full parameter schemas and examples: [tools.md](references/tools.md)
 |---|---|
 | `pollExecutedTool(client, executionId, opts?)` | Poll until terminal status |
 | `uploadFile(client, file, opts)` | Create presigned upload → PUT bytes → poll until processed |
-| `downloadFile(client, storageFileId, opts?)` | Hydrate URL → download (stream to disk or return Response) |
-| `getHydratedFile(client, storageFileId)` | Get file, re-hydrate if URLs expired |
+| `downloadFile(client, fileId, opts?)` | Hydrate URL → download (stream to disk or return Response) |
+| `getHydratedFile(client, fileId)` | Get file, re-hydrate if URLs expired |
 | `verifyWebhookSignature(rawBody, headers, secret)` | Standard Webhooks signature verification |
 
 ## Reference files

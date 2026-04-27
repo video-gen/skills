@@ -8,7 +8,7 @@ Generated assets and user uploads are represented as `StorageFile` objects. Sign
 
 | Field | Type | Description |
 |---|---|---|
-| `storageFileId` | string | File ID (`vg_file_...`) |
+| `fileId` | string | File ID (`vg_file_...`) |
 | `type` | `IMAGE` \| `VIDEO` \| `AUDIO` | File type |
 | `scope` | `GLOBAL` \| `PROJECT` \| `EXPORT` \| `TEMPORARY` | File scope |
 | `displayName` | string | Display name |
@@ -55,24 +55,24 @@ const { files } = await client.files.getFiles();
 
 ## Get file
 
-**Endpoint:** `GET /v1/files/{storageFileId}`
+**Endpoint:** `GET /v1/files/{fileId}`
 
 Returns a single `StorageFile`.
 
 ```typescript
-const file = await client.files.getFile({ storageFileId: "vg_file_abc123" });
+const file = await client.files.getFile({ fileId: "vg_file_abc123" });
 ```
 
 ---
 
 ## Hydrate file
 
-**Endpoint:** `POST /v1/files/{storageFileId}/hydrate`
+**Endpoint:** `POST /v1/files/{fileId}/hydrate`
 
 Generates fresh signed URLs for all renditions. Returns the full `StorageFile` with populated sources.
 
 ```typescript
-const file = await client.files.hydrateFile({ storageFileId: "vg_file_abc123" });
+const file = await client.files.hydrateFile({ fileId: "vg_file_abc123" });
 console.log(file.downloadSource?.url); // fresh signed URL
 ```
 
@@ -92,9 +92,9 @@ const file = await getHydratedFile(client, "vg_file_abc123");
 
 ### Raw API flow
 
-1. `POST /v1/files/upload` — creates a pending file and returns `{ storageFileId, uploadUrl }`
+1. `POST /v1/files/upload` — creates a pending file and returns `{ fileId, uploadUrl }`
 2. `PUT` the raw file bytes to `uploadUrl`
-3. Poll `GET /v1/files/{storageFileId}` until a source has `status: "ready"`
+3. Poll `GET /v1/files/{fileId}` until a source has `status: "ready"`
 
 **Create file upload request:**
 
@@ -102,7 +102,7 @@ const file = await getHydratedFile(client, "vg_file_abc123");
 |---|---|---|---|
 | `type` | `IMAGE` \| `VIDEO` \| `AUDIO` | yes | File type |
 | `displayName` | string | yes | Display name |
-| `isTemporary` | boolean | no | Auto-delete after 24h (default false) |
+| `isTemporary` | boolean | no | Guaranteed available for 24 hours, then may be archived. Not analyzed (no description, transcript, or embedding). Default false. |
 
 ### SDK helper: uploadFile
 
@@ -119,7 +119,7 @@ const file = await uploadFile(client, buffer, {
   displayName: "photo.jpg",
 });
 
-// file.storageFileId → "vg_file_..."
+// file.fileId → "vg_file_..."
 // file.downloadSource.url → signed download URL
 ```
 
@@ -129,7 +129,7 @@ Options:
 |---|---|---|---|
 | `type` | `IMAGE` \| `VIDEO` \| `AUDIO` | — | Required file type |
 | `displayName` | string | — | Required display name |
-| `temporary` | boolean | false | Auto-delete after 24h |
+| `temporary` | boolean | false | Guaranteed available for 24 hours, then may be archived. Not analyzed. |
 | `pollIntervalMs` | number | 2000 | Poll interval while waiting for processing |
 | `timeoutMs` | number | 3,600,000 | Max wait time before throwing |
 | `signal` | AbortSignal | — | Abort signal |

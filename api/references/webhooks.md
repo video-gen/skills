@@ -65,10 +65,10 @@ When an execution reaches a terminal status, VideoGen sends a POST to your URL:
   "occurredAt": 1745409600,
   "results": [
     {
-      "storageFileId": "vg_file_...",
+      "fileId": "vg_file_...",
       "type": "IMAGE",
       "file": {
-        "storageFileId": "vg_file_...",
+        "fileId": "vg_file_...",
         "type": "IMAGE",
         "scope": "GLOBAL",
         "displayName": "A mountain at sunrise",

@@ -34,7 +34,7 @@ const { toolExecutionId } = await client.tools.promptToImage({
 const execution = await pollExecutedTool(client, toolExecutionId);
 
 if (execution.status === "succeeded") {
-  console.log("File ID:", execution.results[0].storageFileId);
+  console.log("File ID:", execution.results[0].fileId);
 }
 ```
 
@@ -95,8 +95,8 @@ If the execution hasn't completed yet, its status transitions to `cancelled`.
 2. Poll GET /v1/tools/executions/vg_exec_...  →  { status: "pending" }
 3. Poll GET /v1/tools/executions/vg_exec_...  →  { status: "running" }
 4. Poll GET /v1/tools/executions/vg_exec_...  →  { status: "succeeded", results: [...] }
-5. GET /v1/files/{storageFileId}  →  file metadata
-6. POST /v1/files/{storageFileId}/hydrate  →  file with signed download URLs
+5. GET /v1/files/{fileId}  →  file metadata
+6. POST /v1/files/{fileId}/hydrate  →  file with signed download URLs
 ```
 
 Steps 5–6 can be replaced with the `getHydratedFile` or `downloadFile` SDK helpers.
