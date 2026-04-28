@@ -6,7 +6,7 @@ Common optional parameters on most tools:
 
 | Param | Type | Default | Description |
 |---|---|---|---|
-| `numCandidates` | integer (1–100) | 1 | Number of output candidates to generate |
+| `numResults` | integer (1–100) | 1 | Number of output results to generate |
 | `isOutputTemporary` | boolean | false | When true, generated files auto-delete after 24 hours |
 
 ---
@@ -21,7 +21,7 @@ Generate images from a text prompt.
 |---|---|---|---|
 | `prompt` | string | yes | Text prompt |
 | `aspectRatio` | `{ width, height }` | no | Aspect ratio (default 16:9) |
-| `numCandidates` | integer | no | Number of candidates (default 1) |
+| `numResults` | integer | no | Number of results (default 1) |
 | `isOutputTemporary` | boolean | no | Auto-delete after 24h (default false) |
 
 ```typescript
@@ -53,7 +53,7 @@ Generate a video clip from a text prompt, with optional audio.
 | `prompt` | string | yes | Text prompt |
 | `generateAudio` | boolean | no | Generate audio alongside the video (default false) |
 | `aspectRatio` | `{ width, height }` | no | Aspect ratio (default 16:9) |
-| `numCandidates` | integer | no | Number of candidates (default 1) |
+| `numResults` | integer | no | Number of results (default 1) |
 | `isOutputTemporary` | boolean | no | Auto-delete after 24h (default false) |
 
 ```typescript
@@ -78,7 +78,7 @@ Animate a still image into a video clip.
 | `prompt` | string | no | Text prompt to guide the animation |
 | `generateAudio` | boolean | no | Generate audio alongside (default false) |
 | `sourcePromptToImagePrompt` | string | no | Original prompt used to generate the source image |
-| `numCandidates` | integer | no | Number of candidates (default 1) |
+| `numResults` | integer | no | Number of results (default 1) |
 | `isOutputTemporary` | boolean | no | Auto-delete after 24h (default false) |
 
 ```typescript
@@ -102,7 +102,7 @@ Transform an existing image using a text prompt.
 |---|---|---|---|
 | `prompt` | string | yes | Prompt describing how to transform the image |
 | `imageStorageFileId` | string | yes | File ID of the source image (`vg_file_...`) |
-| `numCandidates` | integer | no | Number of candidates (default 1) |
+| `numResults` | integer | no | Number of results (default 1) |
 | `isOutputTemporary` | boolean | no | Auto-delete after 24h (default false) |
 
 ```typescript
@@ -125,7 +125,7 @@ Restyle an existing video using a text prompt.
 |---|---|---|---|
 | `prompt` | string | yes | Prompt describing the visual transformation |
 | `videoStorageFileId` | string | yes | File ID of the source video (`vg_file_...`) |
-| `numCandidates` | integer | no | Number of candidates (default 1) |
+| `numResults` | integer | no | Number of results (default 1) |
 | `isOutputTemporary` | boolean | no | Auto-delete after 24h (default false) |
 
 ```typescript
@@ -152,7 +152,7 @@ Convert text to speech audio. Only voices with `supportsDirectToolExecution: tru
 | `voiceSpeed` | number | no | Speech rate multiplier |
 | `pronunciationReplacements` | `[{ original, replacement }]` | no | Custom pronunciation overrides |
 | `autoExpandPronunciationReplacements` | boolean | no | Auto-expand numbers/symbols to spoken forms |
-| `numCandidates` | integer | no | Number of candidates (default 1) |
+| `numResults` | integer | no | Number of results (default 1) |
 | `isOutputTemporary` | boolean | no | Auto-delete after 24h (default false) |
 
 ```typescript
@@ -178,7 +178,7 @@ Generate a sound effect from a text description.
 | `prompt` | string | yes | Description of the sound effect |
 | `durationSeconds` | number | no | Target duration in seconds |
 | `promptInfluence` | number | no | How strongly the prompt guides generation |
-| `numCandidates` | integer | no | Number of candidates (default 1) |
+| `numResults` | integer | no | Number of results (default 1) |
 | `isOutputTemporary` | boolean | no | Auto-delete after 24h (default false) |
 
 ```typescript
@@ -201,7 +201,7 @@ Generate a talking-head avatar video by pairing a presenter with an audio file.
 |---|---|---|---|
 | `avatarPresenterId` | string | yes | Presenter ID from `GET /v1/resources/avatar-presenters` |
 | `audioStorageFileId` | string | yes | File ID of an AUDIO file (typically from text-to-speech) |
-| `numCandidates` | integer | no | Number of candidates (default 1) |
+| `numResults` | integer | no | Number of results (default 1) |
 | `isOutputTemporary` | boolean | no | Auto-delete after 24h (default false) |
 
 ```typescript
@@ -209,8 +209,8 @@ Generate a talking-head avatar video by pairing a presenter with an audio file.
 const { toolExecutionId: ttsExecId } = await client.tools.textToSpeech({
   ttsText: "Hello, welcome to our product demo.",
 });
-const ttsResult = await pollExecutedTool(client, ttsExecId);
-const audioFileId = ttsResult.results[0].fileId;
+const ttsResponse = await pollExecutedTool(client, ttsExecId);
+const audioFileId = ttsResponse.results[0].fileId;
 
 // Step 2: List presenters and pick one
 const { avatarPresenters } = await client.resources.listAvatarPresenters();
@@ -235,7 +235,7 @@ Convert a raster image to SVG.
 | Param | Type | Required | Description |
 |---|---|---|---|
 | `imageStorageFileId` | string | yes | File ID of the source image |
-| `numCandidates` | integer | no | Number of candidates (default 1) |
+| `numResults` | integer | no | Number of results (default 1) |
 | `isOutputTemporary` | boolean | no | Auto-delete after 24h (default false) |
 
 ```typescript
@@ -256,7 +256,7 @@ Remove the background from an image, returning a transparent-background PNG.
 | Param | Type | Required | Description |
 |---|---|---|---|
 | `imageStorageFileId` | string | yes | File ID of the source image |
-| `numCandidates` | integer | no | Number of candidates (default 1) |
+| `numResults` | integer | no | Number of results (default 1) |
 | `isOutputTemporary` | boolean | no | Auto-delete after 24h (default false) |
 
 ```typescript
@@ -277,7 +277,7 @@ Remove the background from a video, producing a transparent-background video.
 | Param | Type | Required | Description |
 |---|---|---|---|
 | `videoStorageFileId` | string | yes | File ID of the source video |
-| `numCandidates` | integer | no | Number of candidates (default 1) |
+| `numResults` | integer | no | Number of results (default 1) |
 | `isOutputTemporary` | boolean | no | Auto-delete after 24h (default false) |
 
 ```typescript
@@ -298,7 +298,7 @@ Increase image resolution while preserving detail.
 | Param | Type | Required | Description |
 |---|---|---|---|
 | `imageStorageFileId` | string | yes | File ID of the source image |
-| `numCandidates` | integer | no | Number of candidates (default 1) |
+| `numResults` | integer | no | Number of results (default 1) |
 | `isOutputTemporary` | boolean | no | Auto-delete after 24h (default false) |
 
 ```typescript
@@ -319,7 +319,7 @@ Increase video resolution while preserving detail.
 | Param | Type | Required | Description |
 |---|---|---|---|
 | `videoStorageFileId` | string | yes | File ID of the source video |
-| `numCandidates` | integer | no | Number of candidates (default 1) |
+| `numResults` | integer | no | Number of results (default 1) |
 | `isOutputTemporary` | boolean | no | Auto-delete after 24h (default false) |
 
 ```typescript

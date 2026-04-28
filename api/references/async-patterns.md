@@ -31,10 +31,10 @@ const { toolExecutionId } = await client.tools.promptToImage({
   prompt: "A mountain at sunrise",
 });
 
-const execution = await pollExecutedTool(client, toolExecutionId);
+const response = await pollExecutedTool(client, toolExecutionId);
 
-if (execution.status === "succeeded") {
-  console.log("File ID:", execution.results[0].fileId);
+if (response.status === "succeeded") {
+  console.log("File ID:", response.results[0].fileId);
 }
 ```
 

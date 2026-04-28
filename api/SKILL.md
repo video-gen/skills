@@ -30,8 +30,8 @@ const { toolExecutionId } = await client.tools.promptToVideoClip({
   prompt: "Aerial drone shot of a coastal city at golden hour, waves crashing against the shoreline",
 });
 
-const execution = await pollExecutedTool(client, toolExecutionId);
-// execution.results[0].fileId → "vg_file_..."
+const response = await pollExecutedTool(client, toolExecutionId);
+// response.results[0].fileId → "vg_file_..."
 ```
 
 ```python
