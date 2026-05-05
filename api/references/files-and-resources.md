@@ -165,7 +165,7 @@ Returns `{ avatarPresenters: AvatarPresenter[] }`.
 
 | Field | Type | Description |
 |---|---|---|
-| `avatarPresenterId` | string | Presenter ID (`vg_pres_...`) — pass to `audioToAvatarClip` |
+| `avatarPresenterId` | string | Presenter ID (`vg_pres_...`) — pass to `generateAvatar` |
 | `displayableGender` | `MALE` \| `FEMALE` \| `NEUTRAL` | Gender |
 | `imageUrl` | string | Still image URL |
 | `thumbnailUrl` | string | Thumbnail URL |

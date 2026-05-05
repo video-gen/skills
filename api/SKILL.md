@@ -26,7 +26,7 @@ import { VideoGenClient, pollExecutedTool } from "@videogen/sdk";
 
 const client = new VideoGenClient({ token: process.env.VIDEOGEN_API_KEY });
 
-const { toolExecutionId } = await client.tools.promptToVideoClip({
+const { toolExecutionId } = await client.tools.generateVideoClip({
   prompt: "Aerial drone shot of a coastal city at golden hour, waves crashing against the shoreline",
 });
 
@@ -40,7 +40,7 @@ from videogen import VideoGenApi, poll_executed_tool
 
 client = VideoGenApi(token=os.environ["VIDEOGEN_API_KEY"])
 
-response = client.tools.prompt_to_video_clip(prompt="Aerial drone shot of a coastal city at golden hour, waves crashing against the shoreline")
+response = client.tools.generate_video_clip(prompt="Aerial drone shot of a coastal city at golden hour, waves crashing against the shoreline")
 execution = poll_executed_tool(client, response.tool_execution_id)
 # execution.results[0].storage_file_id → "vg_file_..."
 ```
@@ -56,14 +56,11 @@ execution = poll_executed_tool(client, response.tool_execution_id)
 
 | Method | Endpoint | Description |
 |---|---|---|
-| `promptToImage` | `POST /v1/tools/prompt-to-image` | Generate images from text |
-| `promptToVideoClip` | `POST /v1/tools/prompt-to-video-clip` | Generate video from text |
-| `imageToVideoClip` | `POST /v1/tools/image-to-video-clip` | Animate image into video |
-| `imageToImage` | `POST /v1/tools/image-to-image` | Transform image with prompt |
-| `videoToVideoClip` | `POST /v1/tools/video-to-video-clip` | Restyle video with prompt |
+| `generateImage` | `POST /v1/tools/generate-image` | Generate images from text, or transform an existing image |
+| `generateVideoClip` | `POST /v1/tools/generate-video-clip` | Generate video from text, image, or video |
 | `textToSpeech` | `POST /v1/tools/text-to-speech` | Text to speech voiceover |
-| `promptToSoundEffect` | `POST /v1/tools/prompt-to-sound-effect` | Generate sound effects |
-| `audioToAvatarClip` | `POST /v1/tools/audio-to-avatar-clip` | Avatar presenter video |
+| `generateSoundEffect` | `POST /v1/tools/generate-sound-effect` | Generate sound effects |
+| `generateAvatar` | `POST /v1/tools/generate-avatar` | Avatar presenter video |
 | `vectorizeImage` | `POST /v1/tools/vectorize-image` | Raster to SVG |
 | `removeImageBackground` | `POST /v1/tools/remove-image-background` | Remove image background |
 | `removeVideoBackground` | `POST /v1/tools/remove-video-background` | Remove video background |

@@ -11,11 +11,11 @@ Common optional parameters on most tools:
 
 ---
 
-## promptToImage
+## generateImage
 
-Generate images from a text prompt.
+Generate images from a text prompt, or transform an existing image.
 
-**Endpoint:** `POST /v1/tools/prompt-to-image`
+**Endpoint:** `POST /v1/tools/generate-image`
 
 | Param | Type | Required | Description |
 |---|---|---|---|
@@ -25,7 +25,7 @@ Generate images from a text prompt.
 | `isOutputTemporary` | boolean | no | Auto-delete after 24h (default false) |
 
 ```typescript
-const { toolExecutionId } = await client.tools.promptToImage({
+const { toolExecutionId } = await client.tools.generateImage({
   prompt: "A futuristic cityscape at dusk",
   aspectRatio: { width: 1, height: 1 },
 });
@@ -33,7 +33,7 @@ const result = await pollExecutedTool(client, toolExecutionId);
 ```
 
 ```python
-response = client.tools.prompt_to_image(
+response = client.tools.generate_image(
     prompt="A futuristic cityscape at dusk",
     aspect_ratio={"width": 1, "height": 1},
 )
@@ -42,96 +42,24 @@ result = poll_executed_tool(client, response.tool_execution_id)
 
 ---
 
-## promptToVideoClip
+## generateVideoClip
 
-Generate a video clip from a text prompt, with optional audio.
+Generate a video clip from text, an image, or a video, with optional audio.
 
-**Endpoint:** `POST /v1/tools/prompt-to-video-clip`
+**Endpoint:** `POST /v1/tools/generate-video-clip`
 
 | Param | Type | Required | Description |
 |---|---|---|---|
 | `prompt` | string | yes | Text prompt |
-| `generateAudio` | boolean | no | Generate audio alongside the video (default false) |
+| `generateAudio` | boolean | no | When true, audio is guaranteed. When false, audio may still be present (default false) |
 | `aspectRatio` | `{ width, height }` | no | Aspect ratio (default 16:9) |
 | `numResults` | integer | no | Number of results (default 1) |
 | `isOutputTemporary` | boolean | no | Auto-delete after 24h (default false) |
 
 ```typescript
-const { toolExecutionId } = await client.tools.promptToVideoClip({
+const { toolExecutionId } = await client.tools.generateVideoClip({
   prompt: "Ocean waves crashing on rocks, slow motion",
   generateAudio: true,
-});
-const result = await pollExecutedTool(client, toolExecutionId);
-```
-
----
-
-## imageToVideoClip
-
-Animate a still image into a video clip.
-
-**Endpoint:** `POST /v1/tools/image-to-video-clip`
-
-| Param | Type | Required | Description |
-|---|---|---|---|
-| `imageStorageFileId` | string | yes | File ID of the source image (`vg_file_...`) |
-| `prompt` | string | no | Text prompt to guide the animation |
-| `generateAudio` | boolean | no | Generate audio alongside (default false) |
-| `sourcePromptToImagePrompt` | string | no | Original prompt used to generate the source image |
-| `numResults` | integer | no | Number of results (default 1) |
-| `isOutputTemporary` | boolean | no | Auto-delete after 24h (default false) |
-
-```typescript
-const { toolExecutionId } = await client.tools.imageToVideoClip({
-  imageStorageFileId: "vg_file_abc123",
-  prompt: "Camera slowly zooms in, birds fly across the sky",
-  generateAudio: true,
-});
-const result = await pollExecutedTool(client, toolExecutionId);
-```
-
----
-
-## imageToImage
-
-Transform an existing image using a text prompt.
-
-**Endpoint:** `POST /v1/tools/image-to-image`
-
-| Param | Type | Required | Description |
-|---|---|---|---|
-| `prompt` | string | yes | Prompt describing how to transform the image |
-| `imageStorageFileId` | string | yes | File ID of the source image (`vg_file_...`) |
-| `numResults` | integer | no | Number of results (default 1) |
-| `isOutputTemporary` | boolean | no | Auto-delete after 24h (default false) |
-
-```typescript
-const { toolExecutionId } = await client.tools.imageToImage({
-  imageStorageFileId: "vg_file_abc123",
-  prompt: "Make it look like a watercolor painting",
-});
-const result = await pollExecutedTool(client, toolExecutionId);
-```
-
----
-
-## videoToVideoClip
-
-Restyle an existing video using a text prompt.
-
-**Endpoint:** `POST /v1/tools/video-to-video-clip`
-
-| Param | Type | Required | Description |
-|---|---|---|---|
-| `prompt` | string | yes | Prompt describing the visual transformation |
-| `videoStorageFileId` | string | yes | File ID of the source video (`vg_file_...`) |
-| `numResults` | integer | no | Number of results (default 1) |
-| `isOutputTemporary` | boolean | no | Auto-delete after 24h (default false) |
-
-```typescript
-const { toolExecutionId } = await client.tools.videoToVideoClip({
-  videoStorageFileId: "vg_file_vid123",
-  prompt: "Apply anime-style visual transformation",
 });
 const result = await pollExecutedTool(client, toolExecutionId);
 ```
@@ -167,11 +95,11 @@ const result = await pollExecutedTool(client, toolExecutionId);
 
 ---
 
-## promptToSoundEffect
+## generateSoundEffect
 
 Generate a sound effect from a text description.
 
-**Endpoint:** `POST /v1/tools/prompt-to-sound-effect`
+**Endpoint:** `POST /v1/tools/generate-sound-effect`
 
 | Param | Type | Required | Description |
 |---|---|---|---|
@@ -182,7 +110,7 @@ Generate a sound effect from a text description.
 | `isOutputTemporary` | boolean | no | Auto-delete after 24h (default false) |
 
 ```typescript
-const { toolExecutionId } = await client.tools.promptToSoundEffect({
+const { toolExecutionId } = await client.tools.generateSoundEffect({
   prompt: "Thunder crack followed by rain",
   durationSeconds: 5,
 });
@@ -191,11 +119,11 @@ const result = await pollExecutedTool(client, toolExecutionId);
 
 ---
 
-## audioToAvatarClip
+## generateAvatar
 
 Generate a talking-head avatar video by pairing a presenter with an audio file.
 
-**Endpoint:** `POST /v1/tools/audio-to-avatar-clip`
+**Endpoint:** `POST /v1/tools/generate-avatar`
 
 | Param | Type | Required | Description |
 |---|---|---|---|
@@ -217,7 +145,7 @@ const { avatarPresenters } = await client.resources.listAvatarPresenters();
 const presenter = avatarPresenters[0];
 
 // Step 3: Generate avatar video
-const { toolExecutionId: avatarExecId } = await client.tools.audioToAvatarClip({
+const { toolExecutionId: avatarExecId } = await client.tools.generateAvatar({
   avatarPresenterId: presenter.avatarPresenterId,
   audioStorageFileId: audioFileId,
 });
@@ -343,7 +271,7 @@ Response shape (`ExecutedTool`):
 |---|---|---|
 | `toolExecutionId` | string | Execution ID |
 | `status` | `pending` \| `running` \| `succeeded` \| `failed` \| `cancelled` | Current status |
-| `toolType` | string | Tool name (e.g. `PROMPT_TO_IMAGE`) |
+| `toolType` | string | Tool name (e.g. `GENERATE_IMAGE`) |
 | `results` | `ToolSuccessResult[]` | Present when `succeeded` — one entry per candidate |
 | `error` | `{ message, code? }` | Present when `failed` |
 

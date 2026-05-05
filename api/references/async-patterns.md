@@ -5,7 +5,7 @@ All VideoGen tool endpoints are asynchronous. `POST /v1/tools/...` returns HTTP 
 ## Execution lifecycle
 
 ```
-POST /v1/tools/prompt-to-image → { "toolExecutionId": "vg_exec_..." }
+POST /v1/tools/generate-image → { "toolExecutionId": "vg_exec_..." }
 ```
 
 Statuses progress through:
@@ -27,7 +27,7 @@ import { VideoGenClient, pollExecutedTool } from "@videogen/sdk";
 
 const client = new VideoGenClient({ token: process.env.VIDEOGEN_API_KEY });
 
-const { toolExecutionId } = await client.tools.promptToImage({
+const { toolExecutionId } = await client.tools.generateImage({
   prompt: "A mountain at sunrise",
 });
 
@@ -43,7 +43,7 @@ from videogen import VideoGenApi, poll_executed_tool
 
 client = VideoGenApi(token=os.environ["VIDEOGEN_API_KEY"])
 
-response = client.tools.prompt_to_image(prompt="A mountain at sunrise")
+response = client.tools.generate_image(prompt="A mountain at sunrise")
 execution = poll_executed_tool(client, response.tool_execution_id)
 
 if execution.status == "succeeded":
@@ -91,7 +91,7 @@ If the execution hasn't completed yet, its status transitions to `cancelled`.
 ## Typical flow
 
 ```
-1. POST /v1/tools/prompt-to-image  →  { toolExecutionId: "vg_exec_..." }
+1. POST /v1/tools/generate-image  →  { toolExecutionId: "vg_exec_..." }
 2. Poll GET /v1/tools/executions/vg_exec_...  →  { status: "pending" }
 3. Poll GET /v1/tools/executions/vg_exec_...  →  { status: "running" }
 4. Poll GET /v1/tools/executions/vg_exec_...  →  { status: "succeeded", results: [...] }

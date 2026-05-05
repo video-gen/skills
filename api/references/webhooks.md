@@ -61,7 +61,7 @@ When an execution reaches a terminal status, VideoGen sends a POST to your URL:
 {
   "event": "tool_execution.succeeded",
   "toolExecutionId": "vg_exec_...",
-  "toolType": "PROMPT_TO_IMAGE",
+  "toolType": "GENERATE_IMAGE",
   "occurredAt": 1745409600,
   "results": [
     {
