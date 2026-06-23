@@ -37,10 +37,10 @@ const endpoint = await client.webhooks.createWebhookEndpoint({
 
 **Endpoint:** `GET /v1/webhooks/endpoints`
 
-Returns `{ endpoints: WebhookEndpoint[] }`.
+Returns `{ endpoints: WebhookEndpoint[], hasMore: boolean, nextCursor: string | null }`. Query params: `limit` (1-200, default 50) and `cursor` (opaque; pass `nextCursor` from the previous page).
 
 ```typescript
-const { endpoints } = await client.webhooks.listWebhookEndpoints();
+const { endpoints, hasMore, nextCursor } = await client.webhooks.listWebhookEndpoints();
 ```
 
 ## Delete a webhook endpoint
@@ -60,7 +60,7 @@ When an execution reaches a terminal status, VideoGen sends a POST to your URL:
 ```json
 {
   "event": "tool_execution.succeeded",
-  "toolExecutionId": "vg_exec_...",
+  "toolExecutionId": "vg_tool_...",
   "toolType": "GENERATE_IMAGE",
   "occurredAt": 1745409600,
   "results": [
@@ -102,7 +102,7 @@ const payload = verifyWebhookSignature(
 );
 
 console.log(payload.event);           // "tool_execution.succeeded"
-console.log(payload.toolExecutionId); // "vg_exec_..."
+console.log(payload.toolExecutionId); // "vg_tool_..."
 ```
 
 ```python

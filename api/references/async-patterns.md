@@ -1,11 +1,49 @@
 # Async patterns
 
-All VideoGen tool endpoints are asynchronous. `POST /v1/tools/...` returns HTTP 202 with `{ toolExecutionId }`. You choose how to get the result: poll for it, or receive it via webhook.
+All VideoGen workflow and tool endpoints are asynchronous. Workflows (`POST /v1/workflows/*`) return HTTP 202 with `{ workflowRunId, projectId, projectUrl }`; tools (`POST /v1/tools/...`) return HTTP 202 with `{ toolExecutionId }`. You choose how to get the result: poll for it, or receive it via webhook.
 
-## Execution lifecycle
+## Workflow runs
+
+Workflows are the primary surface. Use the `pollWorkflowRun` SDK helper to wait for a run to reach a terminal status (`succeeded`, `failed`, `cancelled`).
+
+```typescript
+import { VideoGenClient, pollWorkflowRun } from "@videogen/sdk";
+
+const client = new VideoGenClient({ token: process.env.VIDEOGEN_API_KEY });
+
+const { workflowRunId, projectUrl } = await client.workflows.addVisualsNarrationsAndCaptionsToScript({
+  script:
+    "Staying hydrated keeps your body and mind running at their best. Drinking enough water boosts your energy, focus, and mood. Keep a water bottle nearby and sip throughout the day.",
+});
+
+const run = await pollWorkflowRun(client, workflowRunId);
+
+if (run.status === "succeeded") {
+  console.log("Project URL:", projectUrl);
+}
+```
+
+```python
+import os
+from videogen import VideoGenApi, poll_workflow_run
+
+client = VideoGenApi(token=os.environ["VIDEOGEN_API_KEY"])
+
+response = client.workflows.add_visuals_narrations_and_captions_to_script(
+    script="Staying hydrated keeps your body and mind running at their best. Drinking enough water boosts your energy, focus, and mood. Keep a water bottle nearby and sip throughout the day.",
+)
+run = poll_workflow_run(client, response.workflow_run_id)
+
+if run.status == "succeeded":
+    print("Project URL:", response.project_url)
+```
+
+Subscribe to `workflow_run.succeeded`, `workflow_run.failed`, and `workflow_run.cancelled` webhooks to receive runs instead of polling. Export the finished project to MP4 with `POST /v1/projects/{projectId}/export` (poll with `pollProjectExport`).
+
+## Tool execution lifecycle
 
 ```
-POST /v1/tools/generate-image → { "toolExecutionId": "vg_exec_..." }
+POST /v1/tools/generate-image → { "toolExecutionId": "vg_tool_..." }
 ```
 
 Statuses progress through:
@@ -47,7 +85,7 @@ response = client.tools.generate_image(prompt="A mountain at sunrise")
 execution = poll_executed_tool(client, response.tool_execution_id)
 
 if execution.status == "succeeded":
-    print("File ID:", execution.results[0].storage_file_id)
+    print("File ID:", execution.results[0].file_id)
 ```
 
 ### Options
@@ -61,7 +99,7 @@ if execution.status == "succeeded":
 
 ```bash
 # Repeat until status is "succeeded", "failed", or "cancelled"
-curl https://api.videogen.io/v1/tools/executions/vg_exec_... \
+curl https://api.videogen.io/v1/tools/executions/vg_tool_... \
   -H "Authorization: Bearer $VIDEOGEN_API_KEY"
 ```
 
@@ -78,11 +116,11 @@ For production systems, register a webhook endpoint and VideoGen will POST to yo
 Cancel an in-progress execution at any time:
 
 ```typescript
-await client.tools.cancelToolExecution({ toolExecutionId: "vg_exec_..." });
+await client.tools.cancelToolExecution({ toolExecutionId: "vg_tool_..." });
 ```
 
 ```bash
-curl -X POST https://api.videogen.io/v1/tools/executions/vg_exec_.../cancel \
+curl -X POST https://api.videogen.io/v1/tools/executions/vg_tool_.../cancel \
   -H "Authorization: Bearer $VIDEOGEN_API_KEY"
 ```
 
@@ -91,10 +129,10 @@ If the execution hasn't completed yet, its status transitions to `cancelled`.
 ## Typical flow
 
 ```
-1. POST /v1/tools/generate-image  →  { toolExecutionId: "vg_exec_..." }
-2. Poll GET /v1/tools/executions/vg_exec_...  →  { status: "pending" }
-3. Poll GET /v1/tools/executions/vg_exec_...  →  { status: "running" }
-4. Poll GET /v1/tools/executions/vg_exec_...  →  { status: "succeeded", results: [...] }
+1. POST /v1/tools/generate-image  →  { toolExecutionId: "vg_tool_..." }
+2. Poll GET /v1/tools/executions/vg_tool_...  →  { status: "pending" }
+3. Poll GET /v1/tools/executions/vg_tool_...  →  { status: "running" }
+4. Poll GET /v1/tools/executions/vg_tool_...  →  { status: "succeeded", results: [...] }
 5. GET /v1/files/{fileId}  →  file metadata
 6. POST /v1/files/{fileId}/hydrate  →  file with signed download URLs
 ```

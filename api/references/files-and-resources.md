@@ -45,7 +45,7 @@ Each `FileSource`:
 
 **Endpoint:** `GET /v1/files`
 
-Returns `{ files: StorageFile[] }`.
+Returns `{ files: StorageFile[], hasMore: boolean, nextCursor: string | null }`. Ordered by most recently updated. Query params: `limit` (1-200, default 50) and `cursor` (opaque; pass `nextCursor` from the previous page).
 
 ```typescript
 const { files } = await client.files.getFiles();
@@ -161,7 +161,7 @@ const bytes = await response.arrayBuffer();
 
 **Endpoint:** `GET /v1/resources/avatar-presenters`
 
-Returns `{ avatarPresenters: AvatarPresenter[] }`.
+Returns `{ avatarPresenters: AvatarPresenter[], hasMore: boolean, nextCursor: string | null }`. Query params: `limit` (1-200, default 50) and `cursor` (opaque; pass `nextCursor` from the previous page).
 
 | Field | Type | Description |
 |---|---|---|
@@ -179,7 +179,7 @@ const { avatarPresenters } = await client.resources.listAvatarPresenters();
 
 **Endpoint:** `GET /v1/resources/tts-voices`
 
-Returns `{ ttsVoices: TtsVoice[] }`. Optional query param `includeDeprecatedVoices` (default false).
+Returns `{ ttsVoices: TtsVoice[], hasMore: boolean, nextCursor: string | null }`. Query params: `limit` (1-200, default 50), `cursor` (opaque; pass `nextCursor` from the previous page), and `includeDeprecatedVoices` (default false).
 
 | Field | Type | Description |
 |---|---|---|

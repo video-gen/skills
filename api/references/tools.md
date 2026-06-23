@@ -119,6 +119,28 @@ const result = await pollExecutedTool(client, toolExecutionId);
 
 ---
 
+## generateMusic
+
+Generate an instrumental music track from a text description. Output tracks are approximately 30 seconds long.
+
+**Endpoint:** `POST /v1/tools/generate-music`
+
+| Param | Type | Required | Description |
+|---|---|---|---|
+| `prompt` | string | yes | Description of the music (include genre, mood, instrumentation, tempo) |
+| `durationSeconds` | number | no | Desired length in seconds (informational — actual output is ~30s) |
+| `numResults` | integer | no | Number of results (default 1) |
+| `isOutputTemporary` | boolean | no | Auto-delete after 24h (default false) |
+
+```typescript
+const { toolExecutionId } = await client.tools.generateMusic({
+  prompt: "Uplifting cinematic orchestral score with rising strings",
+});
+const result = await pollExecutedTool(client, toolExecutionId);
+```
+
+---
+
 ## generateAvatar
 
 Generate a talking-head avatar video by pairing a presenter with an audio file.
@@ -259,6 +281,27 @@ const result = await pollExecutedTool(client, toolExecutionId);
 
 ---
 
+## image3dEffect
+
+Turn a still image into a short video clip with a 3D parallax motion effect, simulating camera movement through the scene.
+
+**Endpoint:** `POST /v1/tools/image-3d-effect`
+
+| Param | Type | Required | Description |
+|---|---|---|---|
+| `imageStorageFileId` | string | yes | File ID of the source image |
+| `numResults` | integer | no | Number of results (default 1) |
+| `isOutputTemporary` | boolean | no | Auto-delete after 24h (default false) |
+
+```typescript
+const { toolExecutionId } = await client.tools.image3dEffect({
+  imageStorageFileId: "vg_file_abc123",
+});
+const result = await pollExecutedTool(client, toolExecutionId);
+```
+
+---
+
 ## getToolExecutionInfo (poll)
 
 Retrieve the current status and result of a tool execution.
@@ -272,6 +315,8 @@ Response shape (`ExecutedTool`):
 | `toolExecutionId` | string | Execution ID |
 | `status` | `pending` \| `running` \| `succeeded` \| `failed` \| `cancelled` | Current status |
 | `toolType` | string | Tool name (e.g. `GENERATE_IMAGE`) |
+| `progressPercentage` | number | Completion progress for the current attempt (0–100). Always `100` when `status` is `succeeded`. |
+| `attemptIndex` | integer | Zero-based index of the current or most recent execution attempt |
 | `results` | `ToolSuccessResult[]` | Present when `succeeded` — one entry per candidate |
 | `error` | `{ message, code? }` | Present when `failed` |
 
@@ -294,5 +339,5 @@ Cancel an in-progress tool execution.
 Returns `202 Accepted`. The execution transitions to `cancelled` if it has not already completed.
 
 ```typescript
-await client.tools.cancelToolExecution({ toolExecutionId: "vg_exec_abc123" });
+await client.tools.cancelToolExecution({ toolExecutionId: "vg_tool_abc123" });
 ```
