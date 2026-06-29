@@ -28,9 +28,13 @@ import { VideoGenClient, pollWorkflowRun } from "@videogen/sdk";
 
 const client = new VideoGenClient({ token: process.env.VIDEOGEN_API_KEY });
 
-const { workflowRunId, projectUrl } = await client.workflows.addVisualsNarrationsAndCaptionsToScript({
+const { workflowRunId, projectUrl } = await client.workflows.scriptToVideo({
   script:
     "Staying hydrated keeps your body and mind running at their best. Drinking enough water boosts your energy, focus, and mood. Keep a water bottle nearby and sip throughout the day.",
+  remixActions: [
+    { type: "ENABLE_CAPTIONS" },
+    { type: "SET_BACKGROUND_MUSIC", fileId: "vg_file_...", volume: 0.25 },
+  ],
 });
 
 const run = await pollWorkflowRun(client, workflowRunId);
@@ -45,6 +49,10 @@ client = VideoGenApi(token=os.environ["VIDEOGEN_API_KEY"])
 
 response = client.workflows.add_visuals_narrations_and_captions_to_script(
     script="Staying hydrated keeps your body and mind running at their best. Drinking enough water boosts your energy, focus, and mood. Keep a water bottle nearby and sip throughout the day.",
+    remix_actions=[
+        {"type": "ENABLE_CAPTIONS"},
+        {"type": "SET_BACKGROUND_MUSIC", "file_id": "vg_file_...", "volume": 0.25},
+    ],
 )
 run = poll_workflow_run(client, response.workflow_run_id)
 # run.status → "succeeded"; response.project_url → open or export the video
@@ -62,17 +70,17 @@ run = poll_workflow_run(client, response.workflow_run_id)
 
 | Method                                        | Endpoint                                                              | Description                                              |
 | --------------------------------------------- | -------------------------------------------------------------------- | ------------------------------------------------------- |
-| `addVisualsNarrationsAndCaptionsToScript`     | `POST /v1/workflows/add-visuals-narrations-and-captions-to-script`    | Turn a script (used verbatim) into a narrated video     |
-| `addVisualsAndCaptionsToVoiceover`            | `POST /v1/workflows/add-visuals-and-captions-to-voiceover`           | Build a video from an uploaded voiceover                 |
-| `addNarrationTransitionsAndCaptionsToSlideshow` | `POST /v1/workflows/add-narration-transitions-and-captions-to-slideshow` | Build a narrated video from a PDF or slideshow      |
-| `generateScenesFromStoryboard`                | `POST /v1/workflows/generate-scenes-from-storyboard`                | Build a video from a list of scenes (image or video clip each) |
+| `scriptToVideo`     | `POST /v1/workflows/script-to-video`    | Turn a script (used verbatim) into a narrated video     |
+| `voiceoverToVideo`            | `POST /v1/workflows/voiceover-to-video`           | Build a video from an uploaded voiceover                 |
+| `slideshowToVideo` | `POST /v1/workflows/slideshow-to-video` | Build a narrated video from a PDF or slideshow      |
+| `storyboardToVideo`                | `POST /v1/workflows/storyboard-to-video`                | Build a video from a list of scenes (image or video clip each) |
 | `getWorkflowRun`                              | `GET /v1/workflows/runs/{workflowRunId}`                            | Poll run status and `projectUrl`                         |
 
 ## Projects
 
 | Method            | Endpoint                                             | Description                          |
 | ----------------- | --------------------------------------------------- | ------------------------------------ |
-| `listProjects`    | `GET /v1/projects`                                  | List API-created projects            |
+| `listProjects`    | `GET /v1/projects`                                  | List projects (API-created by default; pass `includeUiProjects=true` for dashboard projects too) |
 | `getProject`      | `GET /v1/projects/{projectId}`                      | Project metadata and `projectUrl`    |
 | `exportProject`   | `POST /v1/projects/{projectId}/export`              | Start an MP4 export → `{ exportId }` |
 | `getProjectExport`| `GET /v1/projects/{projectId}/exports/{exportId}`   | Poll export; `downloadUrl` when done |
@@ -117,7 +125,7 @@ response = client.text.generate_text(
 
 ## Entities
 
-Reusable actors and visual styles shared across your team. Attach their reference images to workflows for a consistent character (`ACTOR`) or look (`VISUAL_STYLE`). Use an entity in a workflow by passing its `vg_enti_...` id: `visualStyle: { type: "ENTITY", entityId }` (script + voiceover), or per-scene `actorEntityId` / `visualStyleEntityId` on `generateScenesFromStoryboard`.
+Reusable actors and visual styles shared across your team. Attach their reference images to workflows for a consistent character (`ACTOR`) or look (`VISUAL_STYLE`). Use an entity in a workflow by passing its `vg_enti_...` id: `visualStyle: { type: "ENTITY", entityId }` (script + voiceover), or per-scene `actorEntityId` / `visualStyleEntityId` on `storyboardToVideo`.
 
 | Method                  | Endpoint                                       | Description                                                          |
 | ----------------------- | ---------------------------------------------- | ------------------------------------------------------------------- |

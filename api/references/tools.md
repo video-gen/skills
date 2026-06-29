@@ -128,7 +128,6 @@ Generate an instrumental music track from a text description. Output tracks are 
 | Param | Type | Required | Description |
 |---|---|---|---|
 | `prompt` | string | yes | Description of the music (include genre, mood, instrumentation, tempo) |
-| `durationSeconds` | number | no | Desired length in seconds (informational — actual output is ~30s) |
 | `numResults` | integer | no | Number of results (default 1) |
 | `isOutputTemporary` | boolean | no | Auto-delete after 24h (default false) |
 

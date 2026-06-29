@@ -37,7 +37,7 @@ const endpoint = await client.webhooks.createWebhookEndpoint({
 
 **Endpoint:** `GET /v1/webhooks/endpoints`
 
-Returns `{ endpoints: WebhookEndpoint[], hasMore: boolean, nextCursor: string | null }`. Query params: `limit` (1-200, default 50) and `cursor` (opaque; pass `nextCursor` from the previous page).
+Returns `{ endpoints: WebhookEndpoint[], hasMore: boolean, nextCursor: string | null }`. Cursor-paginated; see <https://docs.videogen.io/pagination>.
 
 ```typescript
 const { endpoints, hasMore, nextCursor } = await client.webhooks.listWebhookEndpoints();
