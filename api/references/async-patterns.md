@@ -14,6 +14,11 @@ const client = new VideoGenClient({ token: process.env.VIDEOGEN_API_KEY });
 const { workflowRunId, projectUrl } = await client.workflows.scriptToVideo({
   script:
     "Staying hydrated keeps your body and mind running at their best. Drinking enough water boosts your energy, focus, and mood. Keep a water bottle nearby and sip throughout the day.",
+  visualStyle: {
+    type: "AI_IMAGE",
+    aiStyle: "loose watercolor illustration with visible brushstrokes and soft color bleeds",
+  },
+  quality: "HIGH",
   remixActions: [
     { type: "ENABLE_CAPTIONS" },
     { type: "SET_BACKGROUND_MUSIC", fileId: "vg_file_...", volume: 0.25 },
@@ -35,6 +40,11 @@ client = VideoGenApi(token=os.environ["VIDEOGEN_API_KEY"])
 
 response = client.workflows.add_visuals_narrations_and_captions_to_script(
     script="Staying hydrated keeps your body and mind running at their best. Drinking enough water boosts your energy, focus, and mood. Keep a water bottle nearby and sip throughout the day.",
+    visual_style={
+        "type": "AI_IMAGE",
+        "ai_style": "loose watercolor illustration with visible brushstrokes and soft color bleeds",
+    },
+    quality="HIGH",
     remix_actions=[
         {"type": "ENABLE_CAPTIONS"},
         {"type": "SET_BACKGROUND_MUSIC", "file_id": "vg_file_...", "volume": 0.25},
