@@ -175,7 +175,7 @@ Generate a talking-head avatar video by pairing a presenter with an audio file.
 | Param | Type | Required | Description |
 |---|---|---|---|
 | `avatarPresenterId` | string | yes | Presenter ID from `GET /v1/resources/avatar-presenters` |
-| `audioStorageFileId` | string | yes | File ID of an AUDIO file (typically from text-to-speech) |
+| `audioFileId` | string | yes | File ID of an AUDIO file (typically from text-to-speech) |
 | `numResults` | integer | no | Number of results (default 1) |
 | `isOutputTemporary` | boolean | no | Auto-delete after 24h (default false) |
 
@@ -194,7 +194,7 @@ const presenter = avatarPresenters[0];
 // Step 3: Generate avatar video
 const { toolExecutionId: avatarExecId } = await client.tools.generateAvatar({
   avatarPresenterId: presenter.avatarPresenterId,
-  audioStorageFileId: audioFileId,
+  audioFileId,
 });
 const avatarResult = await pollExecutedTool({ client, toolExecutionId: avatarExecId });
 ```
@@ -209,13 +209,13 @@ Convert a raster image to SVG.
 
 | Param | Type | Required | Description |
 |---|---|---|---|
-| `imageStorageFileId` | string | yes | File ID of the source image |
+| `imageFileId` | string | yes | File ID of the source image |
 | `numResults` | integer | no | Number of results (default 1) |
 | `isOutputTemporary` | boolean | no | Auto-delete after 24h (default false) |
 
 ```typescript
 const { toolExecutionId } = await client.tools.vectorizeImage({
-  imageStorageFileId: "vg_file_abc123",
+  imageFileId: "vg_file_abc123",
 });
 const result = await pollExecutedTool({ client, toolExecutionId });
 ```
@@ -230,13 +230,13 @@ Remove the background from an image, returning a transparent-background PNG.
 
 | Param | Type | Required | Description |
 |---|---|---|---|
-| `imageStorageFileId` | string | yes | File ID of the source image |
+| `imageFileId` | string | yes | File ID of the source image |
 | `numResults` | integer | no | Number of results (default 1) |
 | `isOutputTemporary` | boolean | no | Auto-delete after 24h (default false) |
 
 ```typescript
 const { toolExecutionId } = await client.tools.removeImageBackground({
-  imageStorageFileId: "vg_file_abc123",
+  imageFileId: "vg_file_abc123",
 });
 const result = await pollExecutedTool({ client, toolExecutionId });
 ```
@@ -251,13 +251,13 @@ Remove the background from a video, producing a transparent-background video.
 
 | Param | Type | Required | Description |
 |---|---|---|---|
-| `videoStorageFileId` | string | yes | File ID of the source video |
+| `videoFileId` | string | yes | File ID of the source video |
 | `numResults` | integer | no | Number of results (default 1) |
 | `isOutputTemporary` | boolean | no | Auto-delete after 24h (default false) |
 
 ```typescript
 const { toolExecutionId } = await client.tools.removeVideoBackground({
-  videoStorageFileId: "vg_file_vid123",
+  videoFileId: "vg_file_vid123",
 });
 const result = await pollExecutedTool({ client, toolExecutionId });
 ```
@@ -272,13 +272,13 @@ Increase image resolution while preserving detail.
 
 | Param | Type | Required | Description |
 |---|---|---|---|
-| `imageStorageFileId` | string | yes | File ID of the source image |
+| `imageFileId` | string | yes | File ID of the source image |
 | `numResults` | integer | no | Number of results (default 1) |
 | `isOutputTemporary` | boolean | no | Auto-delete after 24h (default false) |
 
 ```typescript
 const { toolExecutionId } = await client.tools.upscaleImage({
-  imageStorageFileId: "vg_file_abc123",
+  imageFileId: "vg_file_abc123",
 });
 const result = await pollExecutedTool({ client, toolExecutionId });
 ```
@@ -293,13 +293,13 @@ Increase video resolution while preserving detail.
 
 | Param | Type | Required | Description |
 |---|---|---|---|
-| `videoStorageFileId` | string | yes | File ID of the source video |
+| `videoFileId` | string | yes | File ID of the source video |
 | `numResults` | integer | no | Number of results (default 1) |
 | `isOutputTemporary` | boolean | no | Auto-delete after 24h (default false) |
 
 ```typescript
 const { toolExecutionId } = await client.tools.upscaleVideo({
-  videoStorageFileId: "vg_file_vid123",
+  videoFileId: "vg_file_vid123",
 });
 const result = await pollExecutedTool({ client, toolExecutionId });
 ```
@@ -314,13 +314,13 @@ Turn a still image into a short video clip with a 3D parallax motion effect, sim
 
 | Param | Type | Required | Description |
 |---|---|---|---|
-| `imageStorageFileId` | string | yes | File ID of the source image |
+| `imageFileId` | string | yes | File ID of the source image |
 | `numResults` | integer | no | Number of results (default 1) |
 | `isOutputTemporary` | boolean | no | Auto-delete after 24h (default false) |
 
 ```typescript
 const { toolExecutionId } = await client.tools.image3dEffect({
-  imageStorageFileId: "vg_file_abc123",
+  imageFileId: "vg_file_abc123",
 });
 const result = await pollExecutedTool({ client, toolExecutionId });
 ```
@@ -351,7 +351,7 @@ Each `ToolSuccessResult`:
 |---|---|---|
 | `fileId` | string | File ID for the generated asset |
 | `type` | `IMAGE` \| `VIDEO` \| `AUDIO` | File type |
-| `file` | `StorageFile \| null` | Hydrated file metadata (populated from webhooks or after hydration) |
+| `file` | `FileInfo \| null` | Hydrated file metadata (populated from webhooks or after hydration) |
 
 ---
 

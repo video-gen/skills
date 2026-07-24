@@ -2,9 +2,9 @@
 
 ## Files
 
-Generated assets and user uploads are represented as `StorageFile` objects. Signed download URLs expire — call the hydrate endpoint or use the `getHydratedFile` helper to refresh them.
+Generated assets and user uploads are represented as `FileInfo` objects. Signed download URLs expire — call the hydrate endpoint or use the `getHydratedFile` helper to refresh them.
 
-### StorageFile shape
+### FileInfo shape
 
 | Field | Type | Description |
 |---|---|---|
@@ -45,7 +45,7 @@ Each `FileSource`:
 
 **Endpoint:** `GET /v1/files`
 
-Returns `{ files: StorageFile[], hasMore: boolean, nextCursor: string | null }`. Ordered by most recently updated. Cursor-paginated; see <https://docs.videogen.io/pagination>.
+Returns `{ files: FileInfo[], hasMore: boolean, nextCursor: string | null }`. Ordered by most recently updated. Cursor-paginated; see <https://docs.videogen.io/pagination>.
 
 ```typescript
 const { files } = await client.files.getFiles();
@@ -57,7 +57,7 @@ const { files } = await client.files.getFiles();
 
 **Endpoint:** `GET /v1/files/{fileId}`
 
-Returns a single `StorageFile`.
+Returns a single `FileInfo`.
 
 ```typescript
 const file = await client.files.getFile({ fileId: "vg_file_abc123" });
@@ -69,7 +69,7 @@ const file = await client.files.getFile({ fileId: "vg_file_abc123" });
 
 **Endpoint:** `POST /v1/files/{fileId}/hydrate`
 
-Generates fresh signed URLs for all renditions. Returns the full `StorageFile` with populated sources.
+Generates fresh signed URLs for all renditions. Returns the full `FileInfo` with populated sources.
 
 ```typescript
 const file = await client.files.hydrateFile({ fileId: "vg_file_abc123" });

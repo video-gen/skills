@@ -35,7 +35,7 @@ Payload includes `workflowRunId`, `workflowType`, `projectId`, and `projectUrl`.
 | `file.analysis_completed` | Description, transcript, and vector embedding are ready (file is searchable) |
 | `file.analysis_failed` | File analysis failed |
 
-Each file event payload includes a hydrated `StorageFile` object. `file.analysis_completed` and `file.analysis_failed` never fire for `scope: "TEMPORARY"` files.
+Each file event payload includes a hydrated `FileInfo` object. `file.analysis_completed` and `file.analysis_failed` never fire for `scope: "TEMPORARY"` files.
 
 ## Create a webhook endpoint
 
