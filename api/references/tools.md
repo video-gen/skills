@@ -29,7 +29,7 @@ const { toolExecutionId } = await client.tools.generateImage({
   prompt: "A futuristic cityscape at dusk",
   aspectRatio: { width: 1, height: 1 },
 });
-const result = await pollExecutedTool(client, toolExecutionId);
+const result = await pollExecutedTool({ client, toolExecutionId });
 ```
 
 ```python
@@ -61,7 +61,7 @@ const { toolExecutionId } = await client.tools.generateVideoClip({
   prompt: "Ocean waves crashing on rocks, slow motion",
   generateAudio: true,
 });
-const result = await pollExecutedTool(client, toolExecutionId);
+const result = await pollExecutedTool({ client, toolExecutionId });
 ```
 
 ---
@@ -90,7 +90,7 @@ const { toolExecutionId } = await client.tools.textToSpeech({
   speechLanguageCode: "en",
   voiceSpeed: 1.1,
 });
-const result = await pollExecutedTool(client, toolExecutionId);
+const result = await pollExecutedTool({ client, toolExecutionId });
 ```
 
 ---
@@ -114,7 +114,7 @@ const { toolExecutionId } = await client.tools.generateSoundEffect({
   prompt: "Thunder crack followed by rain",
   durationSeconds: 5,
 });
-const result = await pollExecutedTool(client, toolExecutionId);
+const result = await pollExecutedTool({ client, toolExecutionId });
 ```
 
 ---
@@ -135,7 +135,33 @@ Generate an instrumental music track from a text description. Output tracks are 
 const { toolExecutionId } = await client.tools.generateMusic({
   prompt: "Uplifting cinematic orchestral score with rising strings",
 });
-const result = await pollExecutedTool(client, toolExecutionId);
+const result = await pollExecutedTool({ client, toolExecutionId });
+```
+
+---
+
+## generateMotionGraphic
+
+Generate an animated motion graphic video from a text prompt. Experimental and fully agentic: VideoGen plans the animation, optionally generates or fetches supporting media, and renders a self-contained clip. Best for precise text animations (typing effects, kinetic typography, lower thirds, animated captions) that stock or generated footage can't express.
+
+**Endpoint:** `POST /v1/tools/generate-motion-graphic`
+
+| Param | Type | Required | Description |
+|---|---|---|---|
+| `prompt` | string | yes | Description of the animated motion graphic to generate |
+| `fileIds` | string[] | no | Reference media file IDs (`vg_file_...`, up to 8) the motion graphic may display or animate |
+| `durationSeconds` | integer | no | Length in seconds, 1–300 (default 5) |
+| `aspectRatio` | object | no | `{ width, height }` (default 16:9) |
+| `numResults` | integer | no | Number of results (default 1) |
+| `isOutputTemporary` | boolean | no | Auto-delete after 24h (default false) |
+
+```typescript
+const { toolExecutionId } = await client.tools.generateMotionGraphic({
+  prompt:
+    "A dark terminal window that types out the command `npm run build` character by character, then shows a green success checkmark",
+  durationSeconds: 6,
+});
+const result = await pollExecutedTool({ client, toolExecutionId });
 ```
 
 ---
@@ -158,7 +184,7 @@ Generate a talking-head avatar video by pairing a presenter with an audio file.
 const { toolExecutionId: ttsExecId } = await client.tools.textToSpeech({
   ttsText: "Hello, welcome to our product demo.",
 });
-const ttsResponse = await pollExecutedTool(client, ttsExecId);
+const ttsResponse = await pollExecutedTool({ client, toolExecutionId: ttsExecId });
 const audioFileId = ttsResponse.results[0].fileId;
 
 // Step 2: List presenters and pick one
@@ -170,7 +196,7 @@ const { toolExecutionId: avatarExecId } = await client.tools.generateAvatar({
   avatarPresenterId: presenter.avatarPresenterId,
   audioStorageFileId: audioFileId,
 });
-const avatarResult = await pollExecutedTool(client, avatarExecId);
+const avatarResult = await pollExecutedTool({ client, toolExecutionId: avatarExecId });
 ```
 
 ---
@@ -191,7 +217,7 @@ Convert a raster image to SVG.
 const { toolExecutionId } = await client.tools.vectorizeImage({
   imageStorageFileId: "vg_file_abc123",
 });
-const result = await pollExecutedTool(client, toolExecutionId);
+const result = await pollExecutedTool({ client, toolExecutionId });
 ```
 
 ---
@@ -212,7 +238,7 @@ Remove the background from an image, returning a transparent-background PNG.
 const { toolExecutionId } = await client.tools.removeImageBackground({
   imageStorageFileId: "vg_file_abc123",
 });
-const result = await pollExecutedTool(client, toolExecutionId);
+const result = await pollExecutedTool({ client, toolExecutionId });
 ```
 
 ---
@@ -233,7 +259,7 @@ Remove the background from a video, producing a transparent-background video.
 const { toolExecutionId } = await client.tools.removeVideoBackground({
   videoStorageFileId: "vg_file_vid123",
 });
-const result = await pollExecutedTool(client, toolExecutionId);
+const result = await pollExecutedTool({ client, toolExecutionId });
 ```
 
 ---
@@ -254,7 +280,7 @@ Increase image resolution while preserving detail.
 const { toolExecutionId } = await client.tools.upscaleImage({
   imageStorageFileId: "vg_file_abc123",
 });
-const result = await pollExecutedTool(client, toolExecutionId);
+const result = await pollExecutedTool({ client, toolExecutionId });
 ```
 
 ---
@@ -275,7 +301,7 @@ Increase video resolution while preserving detail.
 const { toolExecutionId } = await client.tools.upscaleVideo({
   videoStorageFileId: "vg_file_vid123",
 });
-const result = await pollExecutedTool(client, toolExecutionId);
+const result = await pollExecutedTool({ client, toolExecutionId });
 ```
 
 ---
@@ -296,7 +322,7 @@ Turn a still image into a short video clip with a 3D parallax motion effect, sim
 const { toolExecutionId } = await client.tools.image3dEffect({
   imageStorageFileId: "vg_file_abc123",
 });
-const result = await pollExecutedTool(client, toolExecutionId);
+const result = await pollExecutedTool({ client, toolExecutionId });
 ```
 
 ---

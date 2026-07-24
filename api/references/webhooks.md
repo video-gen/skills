@@ -1,16 +1,41 @@
 # Webhooks
 
-Register webhook endpoints to receive events when tool executions complete, instead of polling.
+Register webhook endpoints to receive events when tool executions, workflow runs, or file uploads complete, instead of polling.
 
 Webhooks follow the [Standard Webhooks](https://www.standardwebhooks.com/) spec.
 
 ## Events
+
+### Tool execution events
 
 | Event | Fired when |
 |---|---|
 | `tool_execution.succeeded` | Execution completed successfully |
 | `tool_execution.failed` | Execution failed |
 | `tool_execution.cancelled` | Execution was cancelled |
+
+### Workflow run events
+
+| Event | Fired when |
+|---|---|
+| `workflow_run.succeeded` | Workflow run completed successfully |
+| `workflow_run.failed` | Workflow run failed |
+| `workflow_run.cancelled` | Workflow run was cancelled |
+
+Payload includes `workflowRunId`, `workflowType`, `projectId`, and `projectUrl`.
+
+### File events (API uploads only)
+
+| Event | Fired when |
+|---|---|
+| `file.upload.completed` | File upload finished and the file is stored |
+| `file.upload.failed` | API file upload failed |
+| `file.playback_ready` | HLS streaming is available (private `hlsSource`, plus public playback if enabled) |
+| `file.download_ready` | At least one static-rendition download URL is ready |
+| `file.analysis_completed` | Description, transcript, and vector embedding are ready (file is searchable) |
+| `file.analysis_failed` | File analysis failed |
+
+Each file event payload includes a hydrated `StorageFile` object. `file.analysis_completed` and `file.analysis_failed` never fire for `scope: "TEMPORARY"` files.
 
 ## Create a webhook endpoint
 
@@ -27,7 +52,14 @@ Returns a `WebhookEndpoint` with a `signingSecret`. **The signing secret is only
 ```typescript
 const endpoint = await client.webhooks.createWebhookEndpoint({
   url: "https://your-server.com/webhooks/videogen",
-  events: ["tool_execution.succeeded", "tool_execution.failed"],
+  events: [
+    "tool_execution.succeeded",
+    "tool_execution.failed",
+    "workflow_run.succeeded",
+    "workflow_run.failed",
+    "file.upload.completed",
+    "file.download_ready",
+  ],
 });
 
 // Store endpoint.signingSecret securely — it is only returned on create
@@ -50,12 +82,12 @@ const { endpoints, hasMore, nextCursor } = await client.webhooks.listWebhookEndp
 Returns `204 No Content`. The endpoint stops receiving events immediately.
 
 ```typescript
-await client.webhooks.deleteWebhookEndpoint({ endpointId: "wh_endpoint_..." });
+await client.webhooks.deleteWebhookEndpoint({ endpointId: "ep_..." });
 ```
 
-## Webhook payload
+## Webhook payload (tool execution)
 
-When an execution reaches a terminal status, VideoGen sends a POST to your URL:
+When a tool execution reaches a terminal status, VideoGen sends a POST to your URL:
 
 ```json
 {
@@ -85,6 +117,19 @@ When an execution reaches a terminal status, VideoGen sends a POST to your URL:
 
 Webhook payloads for `succeeded` events include hydrated `file` objects with signed download URLs — no extra API call needed. For `failed` and `cancelled` events, `results` is absent and `error` may be present.
 
+## Webhook payload (workflow run)
+
+```json
+{
+  "event": "workflow_run.succeeded",
+  "workflowRunId": "vg_work_...",
+  "workflowType": "SCRIPT_TO_VIDEO",
+  "projectId": "vg_proj_...",
+  "projectUrl": "https://app.videogen.io/project/...",
+  "occurredAt": 1745409600
+}
+```
+
 ## Verify signatures
 
 Use the `verifyWebhookSignature` SDK helper to confirm a request is authentic. It throws if the signature is invalid or the timestamp is too old.
@@ -95,13 +140,13 @@ Required headers: `webhook-id`, `webhook-timestamp`, `webhook-signature`.
 import { verifyWebhookSignature } from "@videogen/sdk";
 
 // In your webhook handler (e.g. Express, Next.js API route):
-const payload = verifyWebhookSignature(
-  rawBody,         // raw request body string (not parsed JSON)
-  request.headers, // must include webhook-id, webhook-timestamp, webhook-signature
-  signingSecret,   // the secret returned when you created the endpoint
-);
+const payload = verifyWebhookSignature({
+  rawBody, // raw request body string (not parsed JSON)
+  headers: request.headers, // must include webhook-id, webhook-timestamp, webhook-signature
+  secret: signingSecret, // the secret returned when you created the endpoint
+});
 
-console.log(payload.event);           // "tool_execution.succeeded"
+console.log(payload.event); // "tool_execution.succeeded"
 console.log(payload.toolExecutionId); // "vg_tool_..."
 ```
 
@@ -111,7 +156,7 @@ from videogen import verify_webhook_signature
 payload = verify_webhook_signature(
     raw_body=request.data.decode(),
     headers=dict(request.headers),
-    signing_secret=signing_secret,
+    secret=signing_secret,
 )
 ```
 
@@ -127,7 +172,7 @@ const payload = wh.verify(rawBody, headers);
 
 | Field | Type | Description |
 |---|---|---|
-| `endpointId` | string | Endpoint ID |
+| `endpointId` | string | Endpoint ID (e.g. `ep_...`) |
 | `url` | string | Registered URL |
 | `events` | string[] | Subscribed events |
 | `description` | string \| null | Description |

@@ -4,14 +4,14 @@ All VideoGen workflow and tool endpoints are asynchronous. Workflows (`POST /v1/
 
 ## Workflow runs
 
-Workflows are the primary surface. Use the `pollWorkflowRun` SDK helper to wait for a run to reach a terminal status (`succeeded`, `failed`, `cancelled`).
+Workflows are the primary surface. Prefer `scriptToVideoAndWait` (and the other `*AndWait` workflow methods) when you can block. They start the run and wait until a terminal status (`succeeded`, `failed`, `cancelled`). For start-then-poll yourself, use `pollWorkflowRun`.
 
 ```typescript
-import { VideoGenClient, pollWorkflowRun } from "@videogen/sdk";
+import { VideoGen } from "@videogen/sdk";
 
-const client = new VideoGenClient({ token: process.env.VIDEOGEN_API_KEY });
+const vg = new VideoGen({ apiKey: "sk_videogen_live_..." });
 
-const { workflowRunId, projectUrl } = await client.workflows.scriptToVideo({
+const run = await vg.workflows.scriptToVideoAndWait({
   script:
     "Staying hydrated keeps your body and mind running at their best. Drinking enough water boosts your energy, focus, and mood. Keep a water bottle nearby and sip throughout the day.",
   visualStyle: {
@@ -21,24 +21,26 @@ const { workflowRunId, projectUrl } = await client.workflows.scriptToVideo({
   quality: "HIGH",
   remixActions: [
     { type: "ENABLE_CAPTIONS" },
-    { type: "SET_BACKGROUND_MUSIC", fileId: "vg_file_...", volume: 0.25 },
+    {
+      type: "CONVERT_IMAGES_TO_VIDEOS",
+      motionPrompt: "slow cinematic push-in",
+      muteOutputVideos: true,
+      quality: "HIGH",
+    },
   ],
 });
 
-const run = await pollWorkflowRun(client, workflowRunId);
-
 if (run.status === "succeeded") {
-  console.log("Project URL:", projectUrl);
+  console.log("Project ID:", run.projectId);
 }
 ```
 
 ```python
-import os
-from videogen import VideoGenApi, poll_workflow_run
+from videogen import VideoGen
 
-client = VideoGenApi(token=os.environ["VIDEOGEN_API_KEY"])
+vg = VideoGen(api_key="sk_videogen_live_...")
 
-response = client.workflows.add_visuals_narrations_and_captions_to_script(
+run = vg.workflows.script_to_video_and_wait(
     script="Staying hydrated keeps your body and mind running at their best. Drinking enough water boosts your energy, focus, and mood. Keep a water bottle nearby and sip throughout the day.",
     visual_style={
         "type": "AI_IMAGE",
@@ -47,16 +49,57 @@ response = client.workflows.add_visuals_narrations_and_captions_to_script(
     quality="HIGH",
     remix_actions=[
         {"type": "ENABLE_CAPTIONS"},
-        {"type": "SET_BACKGROUND_MUSIC", "file_id": "vg_file_...", "volume": 0.25},
+        {
+            "type": "CONVERT_IMAGES_TO_VIDEOS",
+            "motion_prompt": "slow cinematic push-in",
+            "mute_output_videos": True,
+            "quality": "HIGH",
+        },
     ],
 )
-run = poll_workflow_run(client, response.workflow_run_id)
 
-if run.status == "succeeded":
-    print("Project URL:", response.project_url)
+if run["status"] == "succeeded":
+    print("Project ID:", run.get("project_id"))
 ```
 
-Subscribe to `workflow_run.succeeded`, `workflow_run.failed`, and `workflow_run.cancelled` webhooks to receive runs instead of polling. Export the finished project to MP4 with `POST /v1/projects/{projectId}/export` (poll with `pollProjectExport`).
+Subscribe to `workflow_run.succeeded`, `workflow_run.failed`, and `workflow_run.cancelled` webhooks to receive runs instead of polling. Export the finished project to MP4 with `POST /v1/projects/{projectId}/export` (poll with `pollProjectExport`, or use `exportAndWait`).
+
+### Cancel a workflow run
+
+```typescript
+await vg.workflows.cancelWorkflowRun({ workflowRunId: "vg_work_..." });
+```
+
+```bash
+curl -X POST https://api.videogen.io/v1/workflows/runs/vg_work_.../cancel \
+  -H "Authorization: Bearer sk_videogen_live_..."
+```
+
+## Remix actions
+
+After a workflow succeeds, apply edits with `POST /v1/projects/{projectId}/remix`. The response includes `remixActionIds` (one per action, in order). Prefer `remixAndWait`, or poll with `pollRemixActions` / `GET /v1/projects/{projectId}/remix-actions` until each action reaches a terminal status.
+
+```typescript
+const { remixActionIds } = await vg.projects.remixProject({
+  projectId: "vg_proj_...",
+  remixActions: [
+    { type: "ENABLE_CAPTIONS" },
+    {
+      type: "CONVERT_IMAGES_TO_VIDEOS",
+      motionPrompt: "slow cinematic push-in",
+      muteOutputVideos: true,
+      quality: "HIGH",
+    },
+  ],
+});
+
+const { remixActions } = await vg.projects.listProjectRemixActions({
+  projectId: "vg_proj_...",
+});
+// remixActions[0].status → "succeeded"
+```
+
+Remix action statuses: `pending`, `running`, `succeeded`, `failed`, `cancelled`.
 
 ## Tool execution lifecycle
 
@@ -70,40 +113,41 @@ Statuses progress through:
 |---|---|---|
 | `pending` | no | Queued, waiting to start |
 | `running` | no | Generation in progress |
-| `succeeded` | yes | Done — `results` array is populated |
-| `failed` | yes | Something went wrong — `error` is populated |
+| `succeeded` | yes | Done: `results` array is populated |
+| `failed` | yes | Something went wrong: `error` is populated |
 | `cancelled` | yes | Cancelled by you |
 
 ## Option 1: Polling
 
-Use the `pollExecutedTool` SDK helper. It calls `GET /v1/tools/executions/{toolExecutionId}` in a loop until a terminal status is reached.
+Prefer `generateImageAndWait` (and the other tool `*AndWait` methods) when you can block. For start-then-poll yourself, use `pollExecutedTool` (it calls `GET /v1/tools/executions/{toolExecutionId}` until a terminal status).
 
 ```typescript
-import { VideoGenClient, pollExecutedTool } from "@videogen/sdk";
+import { VideoGen, createPublicPreview } from "@videogen/sdk";
 
-const client = new VideoGenClient({ token: process.env.VIDEOGEN_API_KEY });
+const vg = new VideoGen({ apiKey: "sk_videogen_live_..." });
 
-const { toolExecutionId } = await client.tools.generateImage({
+const execution = await vg.tools.generateImageAndWait({
   prompt: "A mountain at sunrise",
 });
 
-const response = await pollExecutedTool(client, toolExecutionId);
-
-if (response.status === "succeeded") {
-  console.log("File ID:", response.results[0].fileId);
+if (execution.status === "succeeded") {
+  const fileId = execution.results?.[0]?.fileId;
+  const preview = await createPublicPreview({ client: vg, fileId });
+  console.log("File ID:", fileId);
 }
 ```
 
 ```python
-from videogen import VideoGenApi, poll_executed_tool
+from videogen import VideoGen, create_public_preview
 
-client = VideoGenApi(token=os.environ["VIDEOGEN_API_KEY"])
+vg = VideoGen(api_key="sk_videogen_live_...")
 
-response = client.tools.generate_image(prompt="A mountain at sunrise")
-execution = poll_executed_tool(client, response.tool_execution_id)
+execution = vg.tools.generate_image_and_wait(prompt="A mountain at sunrise")
 
-if execution.status == "succeeded":
-    print("File ID:", execution.results[0].file_id)
+if execution["status"] == "succeeded":
+    file_id = execution["results"][0]["file_id"]
+    preview = create_public_preview(vg, file_id)
+    print("File ID:", file_id)
 ```
 
 ### Options
@@ -111,14 +155,15 @@ if execution.status == "succeeded":
 | Option | Type | Default | Description |
 |---|---|---|---|
 | `pollIntervalMs` / `poll_interval_ms` | number | 1500 | Milliseconds between polls |
-| `signal` | AbortSignal | — | Abort signal to cancel polling (TypeScript only) |
+| `signal` | AbortSignal | (none) | Abort signal to cancel polling (TypeScript) |
+| `cancel_event` | `threading.Event` / `asyncio.Event` | (none) | Cancel polling early (Python; raises `PollCancelledError`) |
 
 ### Manual polling
 
 ```bash
 # Repeat until status is "succeeded", "failed", or "cancelled"
 curl https://api.videogen.io/v1/tools/executions/vg_tool_... \
-  -H "Authorization: Bearer $VIDEOGEN_API_KEY"
+  -H "Authorization: Bearer sk_videogen_live_..."
 ```
 
 **When to use polling:** Scripts, CLI tools, or any situation where you can block and wait.
@@ -134,12 +179,12 @@ For production systems, register a webhook endpoint and VideoGen will POST to yo
 Cancel an in-progress execution at any time:
 
 ```typescript
-await client.tools.cancelToolExecution({ toolExecutionId: "vg_tool_..." });
+await vg.tools.cancelToolExecution({ toolExecutionId: "vg_tool_..." });
 ```
 
 ```bash
 curl -X POST https://api.videogen.io/v1/tools/executions/vg_tool_.../cancel \
-  -H "Authorization: Bearer $VIDEOGEN_API_KEY"
+  -H "Authorization: Bearer sk_videogen_live_..."
 ```
 
 If the execution hasn't completed yet, its status transitions to `cancelled`.
@@ -155,4 +200,4 @@ If the execution hasn't completed yet, its status transitions to `cancelled`.
 6. POST /v1/files/{fileId}/hydrate  →  file with signed download URLs
 ```
 
-Steps 5–6 can be replaced with the `getHydratedFile` or `downloadFile` SDK helpers.
+Steps 1–4 can be replaced with `generateImageAndWait` (or `pollExecutedTool`). Steps 5–6 can be replaced with `getHydratedFile` or `downloadFile`. For a shareable public preview URL, use `createPublicPreview`.

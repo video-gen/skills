@@ -83,7 +83,7 @@ Fetches a file and automatically hydrates it if source URLs are missing or expir
 ```typescript
 import { getHydratedFile } from "@videogen/sdk";
 
-const file = await getHydratedFile(client, "vg_file_abc123");
+const file = await getHydratedFile({ client, fileId: "vg_file_abc123" });
 ```
 
 ---
@@ -112,9 +112,9 @@ Wraps the full flow — creates the upload, PUTs the bytes, polls until processe
 import { uploadFile } from "@videogen/sdk";
 import { readFileSync } from "node:fs";
 
-const buffer = readFileSync("./photo.jpg");
-
-const file = await uploadFile(client, buffer, {
+const file = await uploadFile({
+  client,
+  data: readFileSync("./photo.jpg"),
   type: "IMAGE",
   displayName: "photo.jpg",
 });
@@ -136,6 +136,75 @@ Options:
 
 ---
 
+## Search files
+
+**Endpoint:** `POST /v1/files/search`
+
+Semantic vector search over your files. Only files with indexed descriptions are searchable (not `scope: "TEMPORARY"` files).
+
+| Param | Type | Required | Description |
+|---|---|---|---|
+| `query` | string | yes | Natural-language search query |
+| `numResults` | integer | no | Number of results (1–100, default 10) |
+| `selfOnly` | boolean | no | When true, only files created by the calling API key's user (default false) |
+
+```typescript
+const { results } = await client.files.searchFiles({
+  query: "logo overlay on white background",
+  numResults: 5,
+});
+```
+
+---
+
+## Archive file
+
+**Endpoint:** `POST /v1/files/{fileId}/archive`
+
+Archive a file by setting its archived timestamp. Archived files are excluded from list results.
+
+```typescript
+const file = await client.files.archiveFile({ fileId: "vg_file_abc123" });
+```
+
+---
+
+## Enable public preview
+
+**Endpoint:** `POST /v1/files/{fileId}/enable-public-preview`
+
+Enable public preview for a file. Copies the file to a permanent public URL and, for video/audio, registers a public embed playback id for use with `@videogen/player`.
+
+```typescript
+const file = await client.files.enablePublicPreview({ fileId: "vg_file_abc123" });
+```
+
+### SDK helper: pollPublicPreview
+
+After enabling public preview, poll until the permanent URL (and optional embed playback id) are ready.
+
+```typescript
+import { pollPublicPreview } from "@videogen/sdk";
+
+const preview = await pollPublicPreview({ client, fileId: "vg_file_abc123" });
+// preview.publicPreviewUrl → permanent public URL
+// preview.publicPlaybackId → embed playback id (video/audio)
+```
+
+---
+
+## Disable public preview
+
+**Endpoint:** `POST /v1/files/{fileId}/disable-public-preview`
+
+Disable public preview for a file. Removes the permanent public URL copy and revokes unauthenticated embed streaming access.
+
+```typescript
+const file = await client.files.disablePublicPreview({ fileId: "vg_file_abc123" });
+```
+
+---
+
 ## Download a file
 
 ### SDK helper: downloadFile
@@ -146,10 +215,10 @@ Hydrates the file and downloads it. If `outputPath` is provided, streams to disk
 import { downloadFile } from "@videogen/sdk";
 
 // Stream to disk
-await downloadFile(client, "vg_file_abc123", { outputPath: "./output.mp4" });
+await downloadFile({ client, fileId: "vg_file_abc123", outputPath: "./output.mp4" });
 
 // Or get the Response for custom handling
-const response = await downloadFile(client, "vg_file_abc123");
+const response = await downloadFile({ client, fileId: "vg_file_abc123" });
 const bytes = await response.arrayBuffer();
 ```
 
@@ -161,7 +230,7 @@ const bytes = await response.arrayBuffer();
 
 **Endpoint:** `GET /v1/resources/avatar-presenters`
 
-Returns `{ avatarPresenters: AvatarPresenter[], hasMore: boolean, nextCursor: string | null }`. Cursor-paginated; see <https://docs.videogen.io/pagination>.
+Returns `{ avatarPresenters: AvatarPresenter[], hasMore: boolean, nextCursor: string | null }`. Cursor-paginated; see <https://docs.videogen.io/pagination>. Pass a reference `voiceId` query param to sort presenters by best match for that voice.
 
 | Field | Type | Description |
 |---|---|---|
