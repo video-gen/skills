@@ -6,7 +6,7 @@ description: >-
   standalone images, video clips, voiceovers, sound effects, and avatars, or
   managing projects, files, and webhooks with VideoGen.
 license: MIT
-compatibility: Requires an API key from app.videogen.io/developers (VIDEOGEN_API_KEY).
+compatibility: Requires an API key from app.videogen.io/api (VIDEOGEN_API_KEY).
 metadata:
   { "openclaw": { "requires": { "env": ["VIDEOGEN_API_KEY"] }, "primaryEnv": "VIDEOGEN_API_KEY" } }
 ---
@@ -115,7 +115,7 @@ Prefer `*AndWait` / `*_and_wait` when you can block. For start-then-poll yoursel
 | `getProject`             | `GET /v1/projects/{projectId}`                       | Project metadata; optional `projectUrl` for the app editor |
 | `exportProject`          | `POST /v1/projects/{projectId}/export`               | Start an MP4 export → `{ exportId }` |
 | `listProjectExports`     | `GET /v1/projects/{projectId}/exports`               | List a project's export ids (newest first) |
-| `getProjectExport`       | `GET /v1/projects/{projectId}/exports/{exportId}`    | Poll export; `downloadUrl`/`thumbnailUrl` are 24h signed URLs (auto re-signed near expiry); `exportFileId` to hydrate fresh URLs |
+| `getProjectExport`       | `GET /v1/projects/{projectId}/exports/{exportId}`    | Poll export; `downloadUrl`/`thumbnailUrl` are 7-day signed URLs (auto re-signed near expiry); `exportFileId` to hydrate fresh URLs |
 | `remixProject`           | `POST /v1/projects/{projectId}/remix`                | Apply remix actions → `{ remixActionIds }` |
 | `listProjectRemixActions`| `GET /v1/projects/{projectId}/remix-actions`         | Poll remix action status and progress |
 
