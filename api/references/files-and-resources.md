@@ -226,24 +226,6 @@ const bytes = await response.arrayBuffer();
 
 ## Resources
 
-### List avatar presenters
-
-**Endpoint:** `GET /v1/resources/avatar-presenters`
-
-Returns `{ avatarPresenters: AvatarPresenter[], hasMore: boolean, nextCursor: string | null }`. Cursor-paginated; see <https://docs.videogen.io/pagination>. Pass a reference `voiceId` query param to sort presenters by best match for that voice.
-
-| Field | Type | Description |
-|---|---|---|
-| `avatarPresenterId` | string | Presenter ID (`vg_pres_...`) — pass to `generateAvatar` |
-| `displayableGender` | `MALE` \| `FEMALE` \| `NEUTRAL` | Gender |
-| `imageUrl` | string | Still image URL |
-| `thumbnailUrl` | string | Thumbnail URL |
-| `previewVideoUrl` | string | Short preview clip URL |
-
-```typescript
-const { avatarPresenters } = await client.resources.listAvatarPresenters();
-```
-
 ### List TTS voices
 
 **Endpoint:** `GET /v1/resources/tts-voices`

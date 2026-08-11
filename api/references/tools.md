@@ -152,6 +152,7 @@ Generate an animated motion graphic video from a text prompt. Experimental and f
 | `fileIds` | string[] | no | Reference media file IDs (`vg_file_...`, up to 8) the motion graphic may display or animate |
 | `durationSeconds` | integer | no | Length in seconds, 1–300 (default 5) |
 | `aspectRatio` | object | no | `{ width, height }` (default 16:9) |
+| `transparentBackground` | boolean | no | Render a transparent WebM for overlaying on other video or images (default true); set false for an opaque MP4 |
 | `numResults` | integer | no | Number of results (default 1) |
 | `isOutputTemporary` | boolean | no | Auto-delete after 24h (default false) |
 
@@ -160,6 +161,7 @@ const { toolExecutionId } = await client.tools.generateMotionGraphic({
   prompt:
     "A dark terminal window that types out the command `npm run build` character by character, then shows a green success checkmark",
   durationSeconds: 6,
+  transparentBackground: true,
 });
 const result = await pollExecutedTool({ client, toolExecutionId });
 ```
@@ -168,14 +170,15 @@ const result = await pollExecutedTool({ client, toolExecutionId });
 
 ## generateAvatar
 
-Generate a talking-head avatar video by pairing a presenter with an audio file.
+Generate a talking-head avatar video by pairing an ACTOR entity with an audio file.
 
 **Endpoint:** `POST /v1/tools/generate-avatar`
 
 | Param | Type | Required | Description |
 |---|---|---|---|
-| `avatarPresenterId` | string | yes | Presenter ID from `GET /v1/resources/avatar-presenters` |
 | `audioFileId` | string | yes | File ID of an AUDIO file (typically from text-to-speech) |
+| `actorEntityId` | string | yes | ACTOR entity ID (`vg_enti_...`) with at least one image reference |
+| `avatarQuality` | `LOW` \| `STANDARD` \| `HIGH` \| `MAX` | no | Quality tier; defaults to the account's avatar quality |
 | `numResults` | integer | no | Number of results (default 1) |
 | `isOutputTemporary` | boolean | no | Auto-delete after 24h (default false) |
 
@@ -187,14 +190,11 @@ const { toolExecutionId: ttsExecId } = await client.tools.textToSpeech({
 const ttsResponse = await pollExecutedTool({ client, toolExecutionId: ttsExecId });
 const audioFileId = ttsResponse.results[0].fileId;
 
-// Step 2: List presenters and pick one
-const { avatarPresenters } = await client.resources.listAvatarPresenters();
-const presenter = avatarPresenters[0];
-
-// Step 3: Generate avatar video
+// Step 2: Generate avatar video with an ACTOR entity
 const { toolExecutionId: avatarExecId } = await client.tools.generateAvatar({
-  avatarPresenterId: presenter.avatarPresenterId,
   audioFileId,
+  actorEntityId: "vg_enti_...",
+  avatarQuality: "HIGH",
 });
 const avatarResult = await pollExecutedTool({ client, toolExecutionId: avatarExecId });
 ```

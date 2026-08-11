@@ -91,7 +91,7 @@ Prefer `*AndWait` / `*_and_wait` when you can block. For start-then-poll yoursel
 1. **Workflows are the primary surface.** `POST /v1/workflows/*` returns `{ workflowRunId, projectId, projectUrl }` with HTTP 202. Use `projectId` for export/remix; `projectUrl` is optional (opens the project in the app editor; team and collaborators only). Prefer `scriptToVideoAndWait` (or poll `GET /v1/workflows/runs/{id}` / `pollWorkflowRun`) until a terminal status. See [async-patterns.md](references/async-patterns.md).
 2. **Remix actions polish a project.** After a workflow succeeds, call `POST /v1/projects/{projectId}/remix` to layer on music, logos, captions, transitions, or natural-language edits. Poll `GET /v1/projects/{projectId}/remix-actions` for status (or `pollRemixActions` / `remixAndWait`).
 3. **Tool calls are async too.** `POST /v1/tools/...` returns `{ toolExecutionId }` with HTTP 202. Prefer `generateImageAndWait` (or poll `GET /v1/tools/executions/{id}` / `pollExecutedTool`).
-4. **IDs are prefixed strings.** `vg_work_...`, `vg_tool_...`, `vg_file_...`, `vg_rmix_...`, `vg_voic_...`, `vg_pres_...`, `vg_enti_...`. Store as-is.
+4. **IDs are prefixed strings.** `vg_work_...`, `vg_tool_...`, `vg_file_...`, `vg_rmix_...`, `vg_voic_...`, `vg_enti_...`. Store as-is.
 5. **Files require hydration for download URLs.** Generated files have signed URLs that expire. Use `getHydratedFile` or `POST /v1/files/{id}/hydrate` to refresh them. See [files-and-resources.md](references/files-and-resources.md).
 6. **Webhooks follow the Standard Webhooks spec.** Register an endpoint, verify signatures with `verifyWebhookSignature`. See [webhooks.md](references/webhooks.md).
 
@@ -129,7 +129,7 @@ Prefer `*AndWait` / `*_and_wait` when you can block. For start-then-poll yoursel
 | `generateSoundEffect`   | `POST /v1/tools/generate-sound-effect`   | Generate sound effects                                    |
 | `generateMusic`         | `POST /v1/tools/generate-music`          | Generate instrumental music from a prompt                 |
 | `generateMotionGraphic` | `POST /v1/tools/generate-motion-graphic` | Generate an animated motion graphic (experimental)        |
-| `generateAvatar`        | `POST /v1/tools/generate-avatar`         | Avatar presenter video                                    |
+| `generateAvatar`        | `POST /v1/tools/generate-avatar`         | ACTOR entity avatar video from uploaded audio              |
 | `vectorizeImage`        | `POST /v1/tools/vectorize-image`         | Raster to SVG                                             |
 | `removeImageBackground` | `POST /v1/tools/remove-image-background` | Remove image background                                   |
 | `removeVideoBackground` | `POST /v1/tools/remove-video-background` | Remove video background                                   |
@@ -185,7 +185,7 @@ me = vg.account.get_me()
 
 These endpoints exist in the OpenAPI spec but are not yet published in the public API reference. They are callable with a standard API key.
 
-Reusable actors, products, and visual styles shared across your team. Attach their reference images to workflows for a consistent character (`ACTOR`) or look (`VISUAL_STYLE`). `PRODUCT` entities are a reusable library of product reference images. Use an entity in a workflow by passing its `vg_enti_...` id: `visualStyle: { type: "ENTITY", entityId }` (script + voiceover), or per-scene `actorEntityIds` / `productEntityIds` / `visualStyleEntityId` on `storyboardToVideo`.
+Reusable actors, products, and visual styles shared across your team. Attach their reference images to workflows for a consistent character (`ACTOR`) or look (`VISUAL_STYLE`). `PRODUCT` entities are a reusable library of product reference images. Use an entity in a workflow by passing its `vg_enti_...` id: `visualStyle: { type: "ENTITY", entityId }` (script + voiceover), or per-scene `actorEntityIds` / `productEntityIds` / `visualStyleEntityId` on `storyboardToVideo`. For avatars, pass an ACTOR entity as `actorEntityId` and optionally set `avatarQuality` (`LOW`, `STANDARD`, `HIGH`, or `MAX`) on `generateAvatar`, script-to-video, slideshow-to-video, or `CHANGE_NARRATOR`. Direct avatar generation also requires `audioFileId` and exactly one avatar source.
 
 | Method                  | Endpoint                                       | Description                                                          |
 | ----------------------- | ---------------------------------------------- | ------------------------------------------------------------------- |
@@ -225,7 +225,7 @@ Named exports and matching methods on the client (`vg.pollWorkflowRun(...)` / `v
 ## Reference files
 
 - **[tools.md](references/tools.md)**: All tool endpoints with parameters and examples
-- **[files-and-resources.md](references/files-and-resources.md)**: File upload, download, hydration, search, public preview, avatar presenters, TTS voices
+- **[files-and-resources.md](references/files-and-resources.md)**: File upload, download, hydration, search, public preview, TTS voices, legacy avatar presenters
 - **[webhooks.md](references/webhooks.md)**: Webhook CRUD and signature verification
 - **[async-patterns.md](references/async-patterns.md)**: Polling, webhook delivery, cancellation
 
