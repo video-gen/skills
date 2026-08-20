@@ -20,6 +20,7 @@ Generate images from a text prompt, or transform an existing image.
 | Param | Type | Required | Description |
 |---|---|---|---|
 | `prompt` | string | yes | Text prompt |
+| `entityIds` | `string[]` | no | Actor, product, or visual-style entity ids (`vg_enti_...`) used as identity/reference |
 | `aspectRatio` | `{ width, height }` | no | Aspect ratio (default 16:9) |
 | `numResults` | integer | no | Number of results (default 1) |
 | `isOutputTemporary` | boolean | no | Auto-delete after 24h (default false) |
@@ -50,8 +51,15 @@ Generate a video clip from text, an image, or a video, with optional audio.
 
 | Param | Type | Required | Description |
 |---|---|---|---|
-| `prompt` | string | yes | Text prompt |
+| `prompt` | string | no | Visual description of the clip. Optional when you pass `startFrameFileId`, reference media, or `spokenDialogue` |
+| `startFrameFileId` | string | no | Opening-frame still (`vg_file_...`) |
+| `imageFileIds` | `string[]` | no | Reference image file ids |
+| `videoFileIds` | `string[]` | no | Reference video file ids |
+| `audioFileIds` | `string[]` | no | Reference audio file ids to lip-sync from a recording |
+| `spokenDialogue` | string | no | Exact line the subject should speak as native lip-synced speech. The model synthesizes the voice from this text |
+| `voiceDescription` | string | no | Natural-language description of the voice that speaks `spokenDialogue` |
 | `generateAudio` | boolean | no | When true, audio is guaranteed. When false, audio may still be present (default false) |
+| `suppressBackgroundMusic` | boolean | no | When true, the clip will not include a musical soundtrack. Spoken dialogue and environmental sound are still allowed (default false) |
 | `aspectRatio` | `{ width, height }` | no | Aspect ratio (default 16:9) |
 | `numResults` | integer | no | Number of results (default 1) |
 | `isOutputTemporary` | boolean | no | Auto-delete after 24h (default false) |
