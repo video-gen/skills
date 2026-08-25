@@ -1,6 +1,6 @@
 # Webhooks
 
-Register webhook endpoints to receive events when tool executions, workflow runs, or file uploads complete, instead of polling.
+Register webhook endpoints to receive events when tool executions, workflow runs, project exports, or file uploads complete, instead of polling.
 
 Webhooks follow the [Standard Webhooks](https://www.standardwebhooks.com/) spec.
 
@@ -23,6 +23,16 @@ Webhooks follow the [Standard Webhooks](https://www.standardwebhooks.com/) spec.
 | `workflow_run.cancelled` | Workflow run was cancelled |
 
 Payload includes `workflowRunId`, `workflowType`, `projectId`, and `projectUrl`.
+
+### Project export events (API exports only)
+
+| Event | Fired when |
+|---|---|
+| `project_export.succeeded` | Export completed successfully |
+| `project_export.failed` | Export failed |
+| `project_export.cancelled` | Export was cancelled |
+
+Payload includes `exportId`, `projectId`, `occurredAt`, and `exportFileId` (`null` until succeeded). Use `GET /v1/projects/{projectId}/exports/{exportId}` for signed download URLs.
 
 ### File events (API uploads only)
 
@@ -57,6 +67,8 @@ const endpoint = await client.webhooks.createWebhookEndpoint({
     "tool_execution.failed",
     "workflow_run.succeeded",
     "workflow_run.failed",
+    "project_export.succeeded",
+    "project_export.failed",
     "file.upload.completed",
     "file.download_ready",
   ],
