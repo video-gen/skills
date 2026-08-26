@@ -83,7 +83,7 @@ Convert text to speech audio. Only voices with `supportsDirectToolExecution: tru
 | Param | Type | Required | Description |
 |---|---|---|---|
 | `ttsText` | string | yes | Text to synthesize |
-| `voiceId` | string | yes | Voice ID from `GET /v1/resources/tts-voices`. Only voices with `supportsDirectToolExecution: true` are accepted |
+| `voiceId` | string | yes | Catalog `displayName` (e.g. `Matilda`) or voice ID from `GET /v1/resources/tts-voices`. Only voices with `supportsDirectToolExecution: true` are accepted |
 | `speechLanguageCode` | string | no | ISO-639-1 language hint (e.g. `en`, `es`, `zh`) |
 | `voiceSpeed` | number | no | Speech rate multiplier |
 | `pronunciationReplacements` | `[{ original, replacement }]` | no | Custom pronunciation overrides |

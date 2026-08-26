@@ -234,7 +234,7 @@ Returns `{ ttsVoices: TtsVoice[], hasMore: boolean, nextCursor: string | null }`
 
 | Field | Type | Description |
 |---|---|---|
-| `voiceId` | string | Voice ID (`vg_voic_...`) — pass to `textToSpeech` |
+| `voiceId` | string | Voice ID (`vg_voic_...`) — pass this or `displayName` to `textToSpeech` |
 | `languageCode` | string | Locale tag (e.g. `en-US`, `es-ES`) |
 | `displayName` | string | Voice name |
 | `displayGender` | `MALE` \| `FEMALE` \| `NEUTRAL` | Gender |
